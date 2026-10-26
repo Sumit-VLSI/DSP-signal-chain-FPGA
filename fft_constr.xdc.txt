@@ -1,0 +1,165 @@
+## ========================================================================
+## 1. CLOCK & RESET
+## ========================================================================
+
+# 125 MHz Clock from on-board oscillator
+set_property -dict {PACKAGE_PIN H16 IOSTANDARD LVCMOS33} [get_ports clk]
+create_clock -period 16.000 -name sys_clk_pin -waveform {0.000 8.000} -add [get_ports clk]
+
+# Reset (Mapped to Button 0)
+set_property -dict {PACKAGE_PIN D19 IOSTANDARD LVCMOS33} [get_ports rst]
+
+## ========================================================================
+## 2. OUTPUT VALID FLAG (LEDs)
+## ========================================================================
+
+# filter_out_valid (Mapped to LED 0)
+set_property -dict {PACKAGE_PIN R14 IOSTANDARD LVCMOS33} [get_ports filter_out_valid]
+
+## ========================================================================
+## 3. FILTER OUTPUT [17:0]
+## ========================================================================
+
+# Bits [2:0] mapped to remaining LEDs (LED 1 to 3)
+set_property -dict {PACKAGE_PIN P14 IOSTANDARD LVCMOS33} [get_ports {filter_output[0]}]
+set_property -dict {PACKAGE_PIN N16 IOSTANDARD LVCMOS33} [get_ports {filter_output[1]}]
+set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports {filter_output[2]}]
+
+# Bits [10:3] mapped to Pmod Port JA
+set_property -dict { PACKAGE_PIN Y11    IOSTANDARD LVCMOS33 } [get_ports { filter_output[3] }];  # JA1
+set_property -dict { PACKAGE_PIN AA11   IOSTANDARD LVCMOS33 } [get_ports { filter_output[4] }];  # JA2
+set_property -dict { PACKAGE_PIN Y10    IOSTANDARD LVCMOS33 } [get_ports { filter_output[5] }];  # JA3
+set_property -dict { PACKAGE_PIN AA9    IOSTANDARD LVCMOS33 } [get_ports { filter_output[6] }];  # JA4
+set_property -dict { PACKAGE_PIN W12    IOSTANDARD LVCMOS33 } [get_ports { filter_output[7] }];  # JA7
+set_property -dict { PACKAGE_PIN W11    IOSTANDARD LVCMOS33 } [get_ports { filter_output[8] }];  # JA8
+set_property -dict { PACKAGE_PIN V10    IOSTANDARD LVCMOS33 } [get_ports { filter_output[9] }];  # JA9
+set_property -dict { PACKAGE_PIN W8     IOSTANDARD LVCMOS33 } [get_ports { filter_output[10] }]; # JA10
+
+# Bits [17:11] mapped to Pmod Port JB
+set_property -dict {PACKAGE_PIN W14 IOSTANDARD LVCMOS33} [get_ports {filter_output[11]}]
+set_property -dict {PACKAGE_PIN Y14 IOSTANDARD LVCMOS33} [get_ports {filter_output[12]}]
+set_property -dict {PACKAGE_PIN T11 IOSTANDARD LVCMOS33} [get_ports {filter_output[13]}]
+set_property -dict {PACKAGE_PIN T10 IOSTANDARD LVCMOS33} [get_ports {filter_output[14]}]
+set_property -dict {PACKAGE_PIN V16 IOSTANDARD LVCMOS33} [get_ports {filter_output[15]}]
+set_property -dict {PACKAGE_PIN W16 IOSTANDARD LVCMOS33} [get_ports {filter_output[16]}]
+set_property -dict {PACKAGE_PIN V12 IOSTANDARD LVCMOS33} [get_ports {filter_output[17]}]
+
+## ========================================================================
+## 4. CONFIGURATION / BITSTREAM PROPERTIES
+## ========================================================================
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+
+connect_debug_port u_ila_0/probe15 [get_nets [list {filter_output_OBUF[0]} {filter_output_OBUF[1]} {filter_output_OBUF[2]} {filter_output_OBUF[3]} {filter_output_OBUF[4]} {filter_output_OBUF[5]} {filter_output_OBUF[6]} {filter_output_OBUF[7]} {filter_output_OBUF[8]} {filter_output_OBUF[9]} {filter_output_OBUF[10]} {filter_output_OBUF[11]} {filter_output_OBUF[12]} {filter_output_OBUF[13]} {filter_output_OBUF[14]} {filter_output_OBUF[15]} {filter_output_OBUF[16]} {filter_output_OBUF[17]}]]
+connect_debug_port u_ila_0/probe22 [get_nets [list filter_out_valid_OBUF]]
+
+create_debug_core u_ila_0 ila
+set_property ALL_PROBE_SAME_MU true [get_debug_cores u_ila_0]
+set_property ALL_PROBE_SAME_MU_CNT 1 [get_debug_cores u_ila_0]
+set_property C_ADV_TRIGGER false [get_debug_cores u_ila_0]
+set_property C_DATA_DEPTH 1024 [get_debug_cores u_ila_0]
+set_property C_EN_STRG_QUAL false [get_debug_cores u_ila_0]
+set_property C_INPUT_PIPE_STAGES 0 [get_debug_cores u_ila_0]
+set_property C_TRIGIN_EN false [get_debug_cores u_ila_0]
+set_property C_TRIGOUT_EN false [get_debug_cores u_ila_0]
+set_property port_width 1 [get_debug_ports u_ila_0/clk]
+connect_debug_port u_ila_0/clk [get_nets [list clk_IBUF_BUFG]]
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe0]
+set_property port_width 36 [get_debug_ports u_ila_0/probe0]
+connect_debug_port u_ila_0/probe0 [get_nets [list {bin_4[0]} {bin_4[1]} {bin_4[2]} {bin_4[3]} {bin_4[4]} {bin_4[5]} {bin_4[6]} {bin_4[7]} {bin_4[8]} {bin_4[9]} {bin_4[10]} {bin_4[11]} {bin_4[12]} {bin_4[13]} {bin_4[14]} {bin_4[15]} {bin_4[16]} {bin_4[17]} {bin_4[18]} {bin_4[19]} {bin_4[20]} {bin_4[21]} {bin_4[22]} {bin_4[23]} {bin_4[24]} {bin_4[25]} {bin_4[26]} {bin_4[27]} {bin_4[28]} {bin_4[29]} {bin_4[30]} {bin_4[31]} {bin_4[32]} {bin_4[33]} {bin_4[34]} {bin_4[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe1]
+set_property port_width 36 [get_debug_ports u_ila_0/probe1]
+connect_debug_port u_ila_0/probe1 [get_nets [list {bin_8[0]} {bin_8[1]} {bin_8[2]} {bin_8[3]} {bin_8[4]} {bin_8[5]} {bin_8[6]} {bin_8[7]} {bin_8[8]} {bin_8[9]} {bin_8[10]} {bin_8[11]} {bin_8[12]} {bin_8[13]} {bin_8[14]} {bin_8[15]} {bin_8[16]} {bin_8[17]} {bin_8[18]} {bin_8[19]} {bin_8[20]} {bin_8[21]} {bin_8[22]} {bin_8[23]} {bin_8[24]} {bin_8[25]} {bin_8[26]} {bin_8[27]} {bin_8[28]} {bin_8[29]} {bin_8[30]} {bin_8[31]} {bin_8[32]} {bin_8[33]} {bin_8[34]} {bin_8[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe2]
+set_property port_width 18 [get_debug_ports u_ila_0/probe2]
+connect_debug_port u_ila_0/probe2 [get_nets [list {mixed_signal[0]} {mixed_signal[1]} {mixed_signal[2]} {mixed_signal[3]} {mixed_signal[4]} {mixed_signal[5]} {mixed_signal[6]} {mixed_signal[7]} {mixed_signal[8]} {mixed_signal[9]} {mixed_signal[10]} {mixed_signal[11]} {mixed_signal[12]} {mixed_signal[13]} {mixed_signal[14]} {mixed_signal[15]} {mixed_signal[16]} {mixed_signal[17]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe3]
+set_property port_width 36 [get_debug_ports u_ila_0/probe3]
+connect_debug_port u_ila_0/probe3 [get_nets [list {bin_12[0]} {bin_12[1]} {bin_12[2]} {bin_12[3]} {bin_12[4]} {bin_12[5]} {bin_12[6]} {bin_12[7]} {bin_12[8]} {bin_12[9]} {bin_12[10]} {bin_12[11]} {bin_12[12]} {bin_12[13]} {bin_12[14]} {bin_12[15]} {bin_12[16]} {bin_12[17]} {bin_12[18]} {bin_12[19]} {bin_12[20]} {bin_12[21]} {bin_12[22]} {bin_12[23]} {bin_12[24]} {bin_12[25]} {bin_12[26]} {bin_12[27]} {bin_12[28]} {bin_12[29]} {bin_12[30]} {bin_12[31]} {bin_12[32]} {bin_12[33]} {bin_12[34]} {bin_12[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe4]
+set_property port_width 36 [get_debug_ports u_ila_0/probe4]
+connect_debug_port u_ila_0/probe4 [get_nets [list {bin_11[0]} {bin_11[1]} {bin_11[2]} {bin_11[3]} {bin_11[4]} {bin_11[5]} {bin_11[6]} {bin_11[7]} {bin_11[8]} {bin_11[9]} {bin_11[10]} {bin_11[11]} {bin_11[12]} {bin_11[13]} {bin_11[14]} {bin_11[15]} {bin_11[16]} {bin_11[17]} {bin_11[18]} {bin_11[19]} {bin_11[20]} {bin_11[21]} {bin_11[22]} {bin_11[23]} {bin_11[24]} {bin_11[25]} {bin_11[26]} {bin_11[27]} {bin_11[28]} {bin_11[29]} {bin_11[30]} {bin_11[31]} {bin_11[32]} {bin_11[33]} {bin_11[34]} {bin_11[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe5]
+set_property port_width 36 [get_debug_ports u_ila_0/probe5]
+connect_debug_port u_ila_0/probe5 [get_nets [list {bin_0[0]} {bin_0[1]} {bin_0[2]} {bin_0[3]} {bin_0[4]} {bin_0[5]} {bin_0[6]} {bin_0[7]} {bin_0[8]} {bin_0[9]} {bin_0[10]} {bin_0[11]} {bin_0[12]} {bin_0[13]} {bin_0[14]} {bin_0[15]} {bin_0[16]} {bin_0[17]} {bin_0[18]} {bin_0[19]} {bin_0[20]} {bin_0[21]} {bin_0[22]} {bin_0[23]} {bin_0[24]} {bin_0[25]} {bin_0[26]} {bin_0[27]} {bin_0[28]} {bin_0[29]} {bin_0[30]} {bin_0[31]} {bin_0[32]} {bin_0[33]} {bin_0[34]} {bin_0[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe6]
+set_property port_width 36 [get_debug_ports u_ila_0/probe6]
+connect_debug_port u_ila_0/probe6 [get_nets [list {bin_13[0]} {bin_13[1]} {bin_13[2]} {bin_13[3]} {bin_13[4]} {bin_13[5]} {bin_13[6]} {bin_13[7]} {bin_13[8]} {bin_13[9]} {bin_13[10]} {bin_13[11]} {bin_13[12]} {bin_13[13]} {bin_13[14]} {bin_13[15]} {bin_13[16]} {bin_13[17]} {bin_13[18]} {bin_13[19]} {bin_13[20]} {bin_13[21]} {bin_13[22]} {bin_13[23]} {bin_13[24]} {bin_13[25]} {bin_13[26]} {bin_13[27]} {bin_13[28]} {bin_13[29]} {bin_13[30]} {bin_13[31]} {bin_13[32]} {bin_13[33]} {bin_13[34]} {bin_13[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe7]
+set_property port_width 36 [get_debug_ports u_ila_0/probe7]
+connect_debug_port u_ila_0/probe7 [get_nets [list {bin_2[0]} {bin_2[1]} {bin_2[2]} {bin_2[3]} {bin_2[4]} {bin_2[5]} {bin_2[6]} {bin_2[7]} {bin_2[8]} {bin_2[9]} {bin_2[10]} {bin_2[11]} {bin_2[12]} {bin_2[13]} {bin_2[14]} {bin_2[15]} {bin_2[16]} {bin_2[17]} {bin_2[18]} {bin_2[19]} {bin_2[20]} {bin_2[21]} {bin_2[22]} {bin_2[23]} {bin_2[24]} {bin_2[25]} {bin_2[26]} {bin_2[27]} {bin_2[28]} {bin_2[29]} {bin_2[30]} {bin_2[31]} {bin_2[32]} {bin_2[33]} {bin_2[34]} {bin_2[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe8]
+set_property port_width 18 [get_debug_ports u_ila_0/probe8]
+connect_debug_port u_ila_0/probe8 [get_nets [list {filter_output[0]} {filter_output[1]} {filter_output[2]} {filter_output[3]} {filter_output[4]} {filter_output[5]} {filter_output[6]} {filter_output[7]} {filter_output[8]} {filter_output[9]} {filter_output[10]} {filter_output[11]} {filter_output[12]} {filter_output[13]} {filter_output[14]} {filter_output[15]} {filter_output[16]} {filter_output[17]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe9]
+set_property port_width 36 [get_debug_ports u_ila_0/probe9]
+connect_debug_port u_ila_0/probe9 [get_nets [list {bin_15[0]} {bin_15[1]} {bin_15[2]} {bin_15[3]} {bin_15[4]} {bin_15[5]} {bin_15[6]} {bin_15[7]} {bin_15[8]} {bin_15[9]} {bin_15[10]} {bin_15[11]} {bin_15[12]} {bin_15[13]} {bin_15[14]} {bin_15[15]} {bin_15[16]} {bin_15[17]} {bin_15[18]} {bin_15[19]} {bin_15[20]} {bin_15[21]} {bin_15[22]} {bin_15[23]} {bin_15[24]} {bin_15[25]} {bin_15[26]} {bin_15[27]} {bin_15[28]} {bin_15[29]} {bin_15[30]} {bin_15[31]} {bin_15[32]} {bin_15[33]} {bin_15[34]} {bin_15[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe10]
+set_property port_width 16 [get_debug_ports u_ila_0/probe10]
+connect_debug_port u_ila_0/probe10 [get_nets [list {sine_15mhz[0]} {sine_15mhz[1]} {sine_15mhz[2]} {sine_15mhz[3]} {sine_15mhz[4]} {sine_15mhz[5]} {sine_15mhz[6]} {sine_15mhz[7]} {sine_15mhz[8]} {sine_15mhz[9]} {sine_15mhz[10]} {sine_15mhz[11]} {sine_15mhz[12]} {sine_15mhz[13]} {sine_15mhz[14]} {sine_15mhz[15]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe11]
+set_property port_width 16 [get_debug_ports u_ila_0/probe11]
+connect_debug_port u_ila_0/probe11 [get_nets [list {sine_25mhz[0]} {sine_25mhz[1]} {sine_25mhz[2]} {sine_25mhz[3]} {sine_25mhz[4]} {sine_25mhz[5]} {sine_25mhz[6]} {sine_25mhz[7]} {sine_25mhz[8]} {sine_25mhz[9]} {sine_25mhz[10]} {sine_25mhz[11]} {sine_25mhz[12]} {sine_25mhz[13]} {sine_25mhz[14]} {sine_25mhz[15]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe12]
+set_property port_width 16 [get_debug_ports u_ila_0/probe12]
+connect_debug_port u_ila_0/probe12 [get_nets [list {sine_2mhz[0]} {sine_2mhz[1]} {sine_2mhz[2]} {sine_2mhz[3]} {sine_2mhz[4]} {sine_2mhz[5]} {sine_2mhz[6]} {sine_2mhz[7]} {sine_2mhz[8]} {sine_2mhz[9]} {sine_2mhz[10]} {sine_2mhz[11]} {sine_2mhz[12]} {sine_2mhz[13]} {sine_2mhz[14]} {sine_2mhz[15]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe13]
+set_property port_width 16 [get_debug_ports u_ila_0/probe13]
+connect_debug_port u_ila_0/probe13 [get_nets [list {sine_30mhz[0]} {sine_30mhz[1]} {sine_30mhz[2]} {sine_30mhz[3]} {sine_30mhz[4]} {sine_30mhz[5]} {sine_30mhz[6]} {sine_30mhz[7]} {sine_30mhz[8]} {sine_30mhz[9]} {sine_30mhz[10]} {sine_30mhz[11]} {sine_30mhz[12]} {sine_30mhz[13]} {sine_30mhz[14]} {sine_30mhz[15]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe14]
+set_property port_width 36 [get_debug_ports u_ila_0/probe14]
+connect_debug_port u_ila_0/probe14 [get_nets [list {bin_10[0]} {bin_10[1]} {bin_10[2]} {bin_10[3]} {bin_10[4]} {bin_10[5]} {bin_10[6]} {bin_10[7]} {bin_10[8]} {bin_10[9]} {bin_10[10]} {bin_10[11]} {bin_10[12]} {bin_10[13]} {bin_10[14]} {bin_10[15]} {bin_10[16]} {bin_10[17]} {bin_10[18]} {bin_10[19]} {bin_10[20]} {bin_10[21]} {bin_10[22]} {bin_10[23]} {bin_10[24]} {bin_10[25]} {bin_10[26]} {bin_10[27]} {bin_10[28]} {bin_10[29]} {bin_10[30]} {bin_10[31]} {bin_10[32]} {bin_10[33]} {bin_10[34]} {bin_10[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe15]
+set_property port_width 36 [get_debug_ports u_ila_0/probe15]
+connect_debug_port u_ila_0/probe15 [get_nets [list {bin_3[0]} {bin_3[1]} {bin_3[2]} {bin_3[3]} {bin_3[4]} {bin_3[5]} {bin_3[6]} {bin_3[7]} {bin_3[8]} {bin_3[9]} {bin_3[10]} {bin_3[11]} {bin_3[12]} {bin_3[13]} {bin_3[14]} {bin_3[15]} {bin_3[16]} {bin_3[17]} {bin_3[18]} {bin_3[19]} {bin_3[20]} {bin_3[21]} {bin_3[22]} {bin_3[23]} {bin_3[24]} {bin_3[25]} {bin_3[26]} {bin_3[27]} {bin_3[28]} {bin_3[29]} {bin_3[30]} {bin_3[31]} {bin_3[32]} {bin_3[33]} {bin_3[34]} {bin_3[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe16]
+set_property port_width 36 [get_debug_ports u_ila_0/probe16]
+connect_debug_port u_ila_0/probe16 [get_nets [list {bin_6[0]} {bin_6[1]} {bin_6[2]} {bin_6[3]} {bin_6[4]} {bin_6[5]} {bin_6[6]} {bin_6[7]} {bin_6[8]} {bin_6[9]} {bin_6[10]} {bin_6[11]} {bin_6[12]} {bin_6[13]} {bin_6[14]} {bin_6[15]} {bin_6[16]} {bin_6[17]} {bin_6[18]} {bin_6[19]} {bin_6[20]} {bin_6[21]} {bin_6[22]} {bin_6[23]} {bin_6[24]} {bin_6[25]} {bin_6[26]} {bin_6[27]} {bin_6[28]} {bin_6[29]} {bin_6[30]} {bin_6[31]} {bin_6[32]} {bin_6[33]} {bin_6[34]} {bin_6[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe17]
+set_property port_width 36 [get_debug_ports u_ila_0/probe17]
+connect_debug_port u_ila_0/probe17 [get_nets [list {bin_9[0]} {bin_9[1]} {bin_9[2]} {bin_9[3]} {bin_9[4]} {bin_9[5]} {bin_9[6]} {bin_9[7]} {bin_9[8]} {bin_9[9]} {bin_9[10]} {bin_9[11]} {bin_9[12]} {bin_9[13]} {bin_9[14]} {bin_9[15]} {bin_9[16]} {bin_9[17]} {bin_9[18]} {bin_9[19]} {bin_9[20]} {bin_9[21]} {bin_9[22]} {bin_9[23]} {bin_9[24]} {bin_9[25]} {bin_9[26]} {bin_9[27]} {bin_9[28]} {bin_9[29]} {bin_9[30]} {bin_9[31]} {bin_9[32]} {bin_9[33]} {bin_9[34]} {bin_9[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe18]
+set_property port_width 36 [get_debug_ports u_ila_0/probe18]
+connect_debug_port u_ila_0/probe18 [get_nets [list {bin_7[0]} {bin_7[1]} {bin_7[2]} {bin_7[3]} {bin_7[4]} {bin_7[5]} {bin_7[6]} {bin_7[7]} {bin_7[8]} {bin_7[9]} {bin_7[10]} {bin_7[11]} {bin_7[12]} {bin_7[13]} {bin_7[14]} {bin_7[15]} {bin_7[16]} {bin_7[17]} {bin_7[18]} {bin_7[19]} {bin_7[20]} {bin_7[21]} {bin_7[22]} {bin_7[23]} {bin_7[24]} {bin_7[25]} {bin_7[26]} {bin_7[27]} {bin_7[28]} {bin_7[29]} {bin_7[30]} {bin_7[31]} {bin_7[32]} {bin_7[33]} {bin_7[34]} {bin_7[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe19]
+set_property port_width 36 [get_debug_ports u_ila_0/probe19]
+connect_debug_port u_ila_0/probe19 [get_nets [list {bin_5[0]} {bin_5[1]} {bin_5[2]} {bin_5[3]} {bin_5[4]} {bin_5[5]} {bin_5[6]} {bin_5[7]} {bin_5[8]} {bin_5[9]} {bin_5[10]} {bin_5[11]} {bin_5[12]} {bin_5[13]} {bin_5[14]} {bin_5[15]} {bin_5[16]} {bin_5[17]} {bin_5[18]} {bin_5[19]} {bin_5[20]} {bin_5[21]} {bin_5[22]} {bin_5[23]} {bin_5[24]} {bin_5[25]} {bin_5[26]} {bin_5[27]} {bin_5[28]} {bin_5[29]} {bin_5[30]} {bin_5[31]} {bin_5[32]} {bin_5[33]} {bin_5[34]} {bin_5[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe20]
+set_property port_width 36 [get_debug_ports u_ila_0/probe20]
+connect_debug_port u_ila_0/probe20 [get_nets [list {bin_14[0]} {bin_14[1]} {bin_14[2]} {bin_14[3]} {bin_14[4]} {bin_14[5]} {bin_14[6]} {bin_14[7]} {bin_14[8]} {bin_14[9]} {bin_14[10]} {bin_14[11]} {bin_14[12]} {bin_14[13]} {bin_14[14]} {bin_14[15]} {bin_14[16]} {bin_14[17]} {bin_14[18]} {bin_14[19]} {bin_14[20]} {bin_14[21]} {bin_14[22]} {bin_14[23]} {bin_14[24]} {bin_14[25]} {bin_14[26]} {bin_14[27]} {bin_14[28]} {bin_14[29]} {bin_14[30]} {bin_14[31]} {bin_14[32]} {bin_14[33]} {bin_14[34]} {bin_14[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe21]
+set_property port_width 36 [get_debug_ports u_ila_0/probe21]
+connect_debug_port u_ila_0/probe21 [get_nets [list {bin_1[0]} {bin_1[1]} {bin_1[2]} {bin_1[3]} {bin_1[4]} {bin_1[5]} {bin_1[6]} {bin_1[7]} {bin_1[8]} {bin_1[9]} {bin_1[10]} {bin_1[11]} {bin_1[12]} {bin_1[13]} {bin_1[14]} {bin_1[15]} {bin_1[16]} {bin_1[17]} {bin_1[18]} {bin_1[19]} {bin_1[20]} {bin_1[21]} {bin_1[22]} {bin_1[23]} {bin_1[24]} {bin_1[25]} {bin_1[26]} {bin_1[27]} {bin_1[28]} {bin_1[29]} {bin_1[30]} {bin_1[31]} {bin_1[32]} {bin_1[33]} {bin_1[34]} {bin_1[35]}]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe22]
+set_property port_width 1 [get_debug_ports u_ila_0/probe22]
+connect_debug_port u_ila_0/probe22 [get_nets [list filter_out_valid]]
+create_debug_port u_ila_0 probe
+set_property PROBE_TYPE DATA_AND_TRIGGER [get_debug_ports u_ila_0/probe23]
+set_property port_width 1 [get_debug_ports u_ila_0/probe23]
+connect_debug_port u_ila_0/probe23 [get_nets [list rst_IBUF]]
+set_property C_CLK_INPUT_FREQ_HZ 300000000 [get_debug_cores dbg_hub]
+set_property C_ENABLE_CLK_DIVIDER false [get_debug_cores dbg_hub]
+set_property C_USER_SCAN_CHAIN 1 [get_debug_cores dbg_hub]
+connect_debug_port dbg_hub/clk [get_nets clk_IBUF_BUFG]

@@ -1,0 +1,93 @@
+`timescale 1ns / 1ps
+
+module signal_generation_tb;
+
+    // Inputs to the Unit Under Test (UUT)
+    reg clk;
+    reg rst;
+
+    // Outputs from the Unit Under Test (UUT)
+    wire signed [17:0] filter_output;
+    wire filter_out_valid;
+
+    // Instantiate the Unit Under Test (UUT)
+    signal_generation_top uut (
+        .clk(clk),
+        .rst(rst),
+        .filter_output(filter_output),
+        .filter_out_valid(filter_out_valid)
+    );
+
+    // ------------------------------------------------------------------------
+    // Clock Generator: 100 MHz (10ns Period -> Toggles every 5ns)
+    // ------------------------------------------------------------------------
+    always begin
+        #5 clk = ~clk;
+    end
+
+    // ------------------------------------------------------------------------
+    // Stimulus Sequence
+    // ------------------------------------------------------------------------
+    initial begin
+        // Initialize Inputs
+        clk = 1'b0;
+        rst = 1'b1;
+
+        // Hold Reset active for 100 ns (10 clock cycles)
+        #100;
+        @ (posedge clk);
+        rst = 1'b0;
+        $display("[TB INFO] Reset deactivated. Signal pipeline is running...");
+
+        // Let the simulation run long enough for CORDIC + Mixer + FIR 
+        // to fill the 16-sample block and clear the 4-stage FFT pipeline multiple times.
+        #10000;
+
+        // End Simulation
+        $display("[TB INFO] Simulation finished successfully.");
+        $finish;
+    end
+
+    // ------------------------------------------------------------------------
+    // Console Output Monitor: Tracks the internal 4-stage pipelined math
+    // ------------------------------------------------------------------------
+    reg [3:0] fft_valid_pipe;
+
+    always @(posedge clk) begin
+        if (rst) begin
+            fft_valid_pipe <= 4'b0;
+        end else begin
+            // Shift register to track the 4-stage pipeline latency of the FFT core
+            fft_valid_pipe <= {fft_valid_pipe[2:0], uut.fft_trigger};
+        end
+    end
+
+    // Print values out to the terminal window the exact cycle they hit the output registers
+    always @(posedge clk) begin
+        if (fft_valid_pipe[3]) begin
+            $display("\n=======================================================");
+            $display("   FFT 16-POINT PARALLEL OUTPUT COMPUTE (Time: %0t ps)", $time);
+            $display("=======================================================");
+            $display(" Bin #  |     Real Component     |   Imaginary Component   ");
+            $display("--------+------------------------+-------------------------");
+            $display(" Bin 0  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_0[35:18]),  $signed(uut.bin_0[17:0]));
+            $display(" Bin 1  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_1[35:18]),  $signed(uut.bin_1[17:0]));
+            $display(" Bin 2  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_2[35:18]),  $signed(uut.bin_2[17:0]));
+            $display(" Bin 3  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_3[35:18]),  $signed(uut.bin_3[17:0]));
+            $display(" Bin 4  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_4[35:18]),  $signed(uut.bin_4[17:0]));
+            $display(" Bin 5  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_5[35:18]),  $signed(uut.bin_5[17:0]));
+            $display(" Bin 6  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_6[35:18]),  $signed(uut.bin_6[17:0]));
+            $display(" Bin 7  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_7[35:18]),  $signed(uut.bin_7[17:0]));
+            $display(" Bin 8  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_8[35:18]),  $signed(uut.bin_8[17:0]));
+            $display(" Bin 9  |  Real: %14d  |  Imag: %14d", $signed(uut.bin_9[35:18]),  $signed(uut.bin_9[17:0]));
+            $display(" Bin 10 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_10[35:18]), $signed(uut.bin_10[17:0]));
+            $display(" Bin 11 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_11[35:18]), $signed(uut.bin_11[17:0]));
+            $display(" Bin 12 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_12[35:18]), $signed(uut.bin_12[17:0]));
+            $display(" Bin 13 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_13[35:18]), $signed(uut.bin_13[17:0]));
+            $display(" Bin 14 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_14[35:18]), $signed(uut.bin_14[17:0]));
+            $display(" Bin 15 |  Real: %14d  |  Imag: %14d", $signed(uut.bin_15[35:18]), $signed(uut.bin_15[17:0]));
+            $display("=======================================================\n");
+        end
+    end
+
+endmodule
